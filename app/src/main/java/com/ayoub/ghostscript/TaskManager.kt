@@ -517,7 +517,7 @@ class TaskManager private constructor(private val context: Context) {
         // Update status file
         try {
             File(task.statusPath).writeText("CANCELLED")
-            File(task.logPath).appendText("\n[$(date)] Stopped by user.")
+            File(task.logPath).appendText("\n[Stopped by user]")
         } catch (_: Exception) {}
 
         task.status = "CANCELLED"
@@ -668,35 +668,36 @@ class TaskManager private constructor(private val context: Context) {
         statusPath: String,
         logPath: String
     ): String {
+        val d = "$"
         return """
 #!/system/bin/sh
 # GhostScript Autonomous Runner
 # Task ID: $taskId
 
-echo "$$" > "$pidPath"
+echo "${d}${d}" > "$pidPath"
 echo "RUNNING" > "$statusPath"
-echo "[$(date '+%Y-%m-%d %H:%M:%S')] 👻 Ghost task launched (PID: $$)" >> "$logPath"
+echo "[${d}(date '+%Y-%m-%d %H:%M:%S')] 👻 Ghost task launched (PID: ${d}${d})" >> "$logPath"
 
 if [ $delaySeconds -gt 0 ]; then
-    echo "[$(date '+%Y-%m-%d %H:%M:%S')] ⏳ Dormant sleep for $delaySeconds seconds (0% CPU)..." >> "$logPath"
+    echo "[${d}(date '+%Y-%m-%d %H:%M:%S')] ⏳ Dormant sleep for $delaySeconds seconds (0% CPU)..." >> "$logPath"
     sleep $delaySeconds
 fi
 
-echo "[$(date '+%Y-%m-%d %H:%M:%S')] ⚡ Executing payload commands..." >> "$logPath"
+echo "[${d}(date '+%Y-%m-%d %H:%M:%S')] ⚡ Executing payload commands..." >> "$logPath"
 
 $payloadCommands
 
-EXIT_CODE=$?
-echo "[$(date '+%Y-%m-%d %H:%M:%S')] 🏁 Finished with exit code: $EXIT_CODE" >> "$logPath"
+EXIT_CODE=${d}?
+echo "[${d}(date '+%Y-%m-%d %H:%M:%S')] 🏁 Finished with exit code: ${d}EXIT_CODE" >> "$logPath"
 
-if [ $EXIT_CODE -eq 0 ]; then
+if [ ${d}EXIT_CODE -eq 0 ]; then
     echo "COMPLETED" > "$statusPath"
 else
     echo "FAILED" > "$statusPath"
 fi
 
 rm -f "$pidPath"
-exit $EXIT_CODE
+exit ${d}EXIT_CODE
 """.trimIndent()
     }
 }
